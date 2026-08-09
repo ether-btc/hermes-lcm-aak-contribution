@@ -1,12 +1,20 @@
 # AAAK Compression Provider for hermes-lcm
 
-Deterministic, AI-readable compression achieving ~30x token reduction without requiring a decoder. Adapted from Lumina MemPalace (Bino5150/lumina).
+> **Project status (2026-08-09):** standalone and not integrated into the active
+> hermes-lcm runtime. See [`PRAXIS.md`](PRAXIS.md), [`ROADMAP.md`](ROADMAP.md),
+> [`DECISIONS.md`](DECISIONS.md), and [`STATUS.md`](STATUS.md) for the governed
+> integration path and current evidence.
+
+Deterministic, AI-readable compression without requiring a decoder. The historical
+`~30x` reduction is an unverified target; run the benchmark and inspect its named
+token-measurement method before making reduction claims. Adapted from Lumina MemPalace
+(Bino5150/lumina).
 
 ## Overview
 
 This provider implements an alternative compression strategy for hermes-lcm that:
 
-- **Achieves ~30x token reduction** on verbose prose
+- **Historical ~30x reduction target** — unverified; the current baseline benchmark reports its measurement method and result
 - **Requires zero LLM calls** — deterministic, sub-millisecond
 - **Is natively AI-readable** — no decoder needed, LLMs understand the shorthand directly
 - **Uses explicit tier budgets** (L0-L3) matching Lumina's 4-layer architecture
@@ -75,13 +83,13 @@ Exponential forgetting curve: `w(t) = e^(-λ × t)` with λ=0.05/day (~22% reten
 | Deterministic | ✅ | ✅ | ❌ |
 | LLM calls | 0 | 0 | 1+ per consolidation |
 | Latency | <1ms | ~5-10ms | 500ms-5s |
-| Token reduction | ~30x (prose) | ~2-4x | ~5-10x |
+| Token reduction | Benchmark required | ~2-4x | ~5-10x |
 | AI-readable | ✅ Native | ❌ Needs decoder | ✅ Native |
 | Dependencies | stdlib only | Rust + PyO3 | LLM API/local |
 
 ## Integration with hermes-lcm
 
-This provider is designed to plug into hermes-lcm's compression interface. The `ContextBuilder` produces `ContextBlock` objects compatible with hermes-lcm's context assembly pipeline.
+This package is designed as a candidate provider, but it is not currently integrated into the active hermes-lcm runtime. `ContextBuilder` is a package-local result type; an adapter and contract test are required before compatibility can be claimed.
 
 ### Proposed Integration Points
 
@@ -89,6 +97,17 @@ This provider is designed to plug into hermes-lcm's compression interface. The `
 2. **Config schema** — Extend hermes-lcm config with `aaak:` section for tier budgets, abbreviation map path, decay rate
 3. **Context assembly** — `ContextBuilder.build_context_block()` replaces/supplements existing tier logic
 4. **Rolling summaries** — Store in hermes-lcm externalized payloads or new summary node type
+
+## Compressor configuration contract
+
+`AAkConfig` validates abbreviation maps, filler words, and `min_line_length`
+before compression starts. Abbreviation-map keys and values must be non-empty,
+single-line strings; keys must be unique case-insensitively; and an empty map is
+rejected. `min_line_length` must be a non-negative integer. `create_compressor()`
+rejects unknown configuration keys and malformed values. Custom filler words
+provided through the factory extend the default filler set; an explicit
+`AAkConfig(filler_words=...)` supplies the exact filler set. JSON abbreviation
+maps replace the current map only after successful validation.
 
 ## Source Attribution
 
@@ -101,11 +120,28 @@ Licensed Apache-2.0.
 
 ## Testing
 
+The deterministic baseline benchmark is:
+
 ```bash
-pytest tests/ -v
+python3 scripts/benchmark_aak.py --pretty
 ```
 
-26 tests covering compression, tier management, temporal decay, context building, and full pipeline integration.
+It uses a named heuristic by default. For an optional `cl100k_base` tokenizer
+measurement, install the benchmark extra and run:
+
+```bash
+uv pip install -e '.[benchmark]'
+python3 scripts/benchmark_aak.py --tokenizer tiktoken-cl100k --pretty
+```
+
+The tokenizer is never loaded implicitly, and `cl100k_base` is a measurement
+backend rather than a claim that it matches every target reader model.
+
+```bash
+./scripts/verify.sh
+```
+
+56 tests currently cover compression, configuration validation, benchmark reporting, structural literal preservation, deterministic invariant probes, optional latency measurement, tier management, temporal decay, context building, and full pipeline integration. `SEMANTIC_EVALUATION.md` records a separate bounded adequacy review; it is not independent human or model-reader evidence. Sequential scale evidence is available through `scripts/benchmark_scale.py` and is explicitly host-local.
 
 ## License
 

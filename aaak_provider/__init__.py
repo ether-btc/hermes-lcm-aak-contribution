@@ -1,11 +1,11 @@
 """
 AAAK Compression Provider for hermes-lcm
 
-Deterministic, AI-readable compression achieving ~30x token reduction
-without requiring a decoder. Adapted from Lumina MemPalace (Bino5150/lumina).
+Deterministic, AI-readable compression without requiring a decoder. The historical
+~30x reduction is an unverified target. Adapted from Lumina MemPalace (Bino5150/lumina).
 
-This provider implements the hermes-lcm compression provider interface
-and can be used as an alternative to LLM-based summarization.
+This package is standalone and integration-oriented. It does not currently
+implement or register an active hermes-lcm runtime provider.
 """
 
 from .compression import AAkCompressor, AAkConfig, DEFAULT_AAAK_ABBREV, create_compressor

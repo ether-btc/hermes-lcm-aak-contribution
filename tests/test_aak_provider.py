@@ -139,6 +139,64 @@ class TestAAkCompressor:
         assert "LUM" in r2
         assert "LUM" in r3
 
+    def test_abbreviations_do_not_rewrite_substrings(self):
+        compressor = AAkCompressor()
+        result = compressor.compress("Candy and database")
+        assert "Candy" in result
+        assert "+" in result
+        assert "DB" in result
+
+    def test_custom_filler_words_are_used(self):
+        compressor = AAkCompressor(AAkConfig(filler_words={"customfiller", "the"}))
+        result = compressor.compress("Keep customfiller but preserve the")
+        assert "customfiller" not in result
+        assert "the" not in result.lower()
+
+    @pytest.mark.parametrize(
+        "config",
+        [
+            AAkConfig(abbreviation_map={}),
+            AAkConfig(abbreviation_map={"project": ""}),
+            AAkConfig(abbreviation_map={"project": 1}),
+            AAkConfig(abbreviation_map={1: "PROJ"}),
+            AAkConfig(abbreviation_map={"Project": "PROJ", "project": "P"}),
+            AAkConfig(min_line_length=-1),
+            AAkConfig(min_line_length=True),
+        ],
+    )
+    def test_invalid_configuration_is_rejected(self, config):
+        with pytest.raises((TypeError, ValueError)):
+            AAkCompressor(config)
+
+    def test_factory_custom_filler_words_extend_defaults(self):
+        compressor = create_compressor({"filler_words": ["customfiller"]})
+        result = compressor.compress("The customfiller user is running")
+        assert "customfiller" not in result.lower()
+        assert "the " not in result.lower()
+        assert "is " not in result.lower()
+
+    @pytest.mark.parametrize("config", [[], "not-a-map", {"unknown": 1}])
+    def test_factory_rejects_malformed_config(self, config):
+        with pytest.raises((TypeError, ValueError)):
+            create_compressor(config)
+
+    def test_load_abbreviation_map_replaces_with_validated_map(self, tmp_path):
+        path = tmp_path / "abbreviations.json"
+        path.write_text('{"hermes": "HER"}', encoding="utf-8")
+
+        compressor = AAkCompressor()
+        compressor.load_abbreviation_map(str(path))
+
+        assert compressor.compress("Hermes agent is running") == "HER agent running"
+
+    @pytest.mark.parametrize("payload", ["[]", '{"project": ""}', '{"Project": "P", "project": "Q"}'])
+    def test_load_abbreviation_map_rejects_invalid_json_map(self, tmp_path, payload):
+        path = tmp_path / "abbreviations.json"
+        path.write_text(payload, encoding="utf-8")
+
+        with pytest.raises((TypeError, ValueError)):
+            AAkCompressor().load_abbreviation_map(str(path))
+
 
 # ============================================================================
 # Tier Manager Tests
@@ -311,6 +369,11 @@ class TestTemporalDecayEngine:
         now = datetime.now().isoformat()
         weight = engine.decay_weight(now)
         assert weight > 0.9
+
+    @pytest.mark.parametrize("rate", [0, -1, float("nan"), float("inf")])
+    def test_invalid_decay_rate_rejected(self, rate):
+        with pytest.raises(ValueError):
+            TemporalDecayEngine(lambda_rate=rate)
     
     def test_decay_weight_old(self):
         """Test that old timestamps get low weight."""

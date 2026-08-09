@@ -2,7 +2,7 @@
 Temporal Decay Engine for AAAK compression.
 
 Exponential forgetting curve: w(t) = e^(-λ × t)
-Where λ = 0.05/day → ~78% retention after 30 days.
+Where λ = 0.05/day → ~22% retention after 30 days.
 
 Adapted from Lumina MemPalace (tools/temporal_decay.py)
 """
@@ -35,6 +35,8 @@ class TemporalDecayEngine:
         Args:
             lambda_rate: Decay rate per day (default 0.05)
         """
+        if not math.isfinite(lambda_rate) or lambda_rate <= 0:
+            raise ValueError("lambda_rate must be a finite positive number")
         self.lambda_rate = lambda_rate
         # Time constant τ = 1/λ (in days), convert to seconds for timestamp math
         self.tau_days = 1.0 / lambda_rate
