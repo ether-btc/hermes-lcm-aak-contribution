@@ -156,7 +156,7 @@ class TestAAkCompressor:
         "config",
         [
             AAkConfig(abbreviation_map={}),
-            AAkConfig(abbreviation_map={"project": ""}),
+            # AAkConfig(abbreviation_map={"project": ""}), # empty string is now valid (means "delete this phrase")
             AAkConfig(abbreviation_map={"project": 1}),
             AAkConfig(abbreviation_map={1: "PROJ"}),
             AAkConfig(abbreviation_map={"Project": "PROJ", "project": "P"}),
@@ -189,7 +189,7 @@ class TestAAkCompressor:
 
         assert compressor.compress("Hermes agent is running") == "HER agent running"
 
-    @pytest.mark.parametrize("payload", ["[]", '{"project": ""}', '{"Project": "P", "project": "Q"}'])
+    @pytest.mark.parametrize("payload", ["[]", '{"Project": "P", "project": "Q"}'])
     def test_load_abbreviation_map_rejects_invalid_json_map(self, tmp_path, payload):
         path = tmp_path / "abbreviations.json"
         path.write_text(payload, encoding="utf-8")
