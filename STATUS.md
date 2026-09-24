@@ -1,17 +1,17 @@
 # Status
 
 **Project:** hermes-lcm-aak-contribution
-**Date:** 2026-08-15
-**Current state:** standalone package; not integrated into hermes-lcm.
+**Date:** 2026-08-15 (filing refresh 2026-09-24)
+**Current state:** standalone package, **frozen / DEFER dorm**: token economy does not justify further engineering effort under the project's own measurement yardstick; AAAK remains a standalone reference.
 
 ## Verified
 
 - Repository contains standalone AAAK work and tracks `origin/main`; no Hermes-LCM runtime files are changed.
 - Package contains the compressor, tier manager, temporal decay engine, context builder, JSON map, tests, and packaging metadata.
 - **106 tests pass** (1 skipped: hermes-agent not importable).
-- The benchmark reports **0.973x aggregate cl100k_base ratio** on the nine-case corpus (vs 0.947x before M2.5) — up from **215 → 227 tokens (worse)** to **215 → 221 tokens**.
-- On realistic long-form prose (>200 chars), AAAK achieves **1.05x – 1.21x** compression.
-- **Expansion guard** prevents token increase on structured content (JSON, URLs, logs, shell commands).
+- The benchmark reports **0.973x aggregate cl100k_base ratio** on the nine-case corpus (vs 0.947x before M2.5) — up from **215 → 227 tokens (worse)** to **215 → 221 tokens**. Per-case under `tiktoken:cl100k_base`: one case above 1.00x (unicode-prose 1.111x); three cases at 1.00x (prose-preference, code-and-negation, json-config, date-and-number; aggregate count includes cases that the unlabeled branch returned verbatim under the content-type classifier); the remaining cases landed at 0.91–0.97x. Re-run `python3 scripts/benchmark_aak.py --tokenizer tiktoken-cl100k --pretty` to confirm.
+- Long-form prose (>200 chars) has previously been reported at 1.05x–1.21x (see M2.5 results below). That range is reproduced on warm-up heuristics, not on the pinned `cl100k` evaluation set; treat as historical until reproduced.
+- **Expansion guard** prevents token increase on structured content **when no label is supplied and only under the configured `token_counter`** (heuristic by default); with a label it tolerates up to +2 tokens of overhead, and switching to the `cl100k` measurement backend is a deliberate caller choice.
 - **Content-type classifier** skips compression on high-density structured text where abbreviation cannot help.
 - **Multi-word phrase abbreviation** collapses common English patterns (e.g., "the user prefers" → "") for net-positive compression.
 
@@ -29,7 +29,7 @@ The LongCat review on 2026-08-14 gave a **blocking** verdict because AAAK expand
 **Results on the nine-case benchmark:**
 - Before: 215 input / 227 output = 0.947x (expansion)
 - After:  215 input / 221 output = 0.973x (near-parity)
-- Structured cases (json-config, log-line) now return original verbatim
+- Unlabeled structured cases (json-config, log-line) now return original verbatim under the heuristic guard
 
 **Results on realistic long-form prose (>200 chars):**
 - Session summaries: 1.05x – 1.10x compression
@@ -47,10 +47,26 @@ The LongCat review on 2026-08-14 gave a **blocking** verdict because AAAK expand
 
 ## Next action
 
-The M2.5 compression-ratio recovery has resolved the blocking verdict's core complaint. Remaining work:
+**Frozen / DEFER dorm (2026-09-24).** Two independent reviewers (Codex; Experiential Labs `opus-5.5`) and the project's bot-team technical strategist plus product/adoption reviewers concluded that the binding constraint remains tokenization quality and that reviews found no safe contract-preserving implementation without an explicit label/context contract decision. The aggregate cl100k ratio stayed negative (0.9729x) and only one of nine corpus cases compresses. The items below are explicitly superseded and remain only as historical roadmap text:
+1. ~~Re-run independent model review on the updated compression output to verify semantic adequacy.~~
+2. ~~Design and implement the hermes-lcm provider seam adapter.~~
+3. ~~Build a larger reader-oriented semantic corpus with task-completion checks.~~
+4. ~~Canary evaluation on real Hermes sessions.~~
 
-1. Re-run independent model review on the updated compression output to verify semantic adequacy.
-2. Design and implement the hermes-lcm provider seam adapter.
-3. Build a larger reader-oriented semantic corpus with task-completion checks.
-4. Canary evaluation on real Hermes sessions.
+**Optional, timeboxed diagnostic only** (not committed, not authorized): attribute per-case token delta to labels, abbreviation savings, phrase collapses, and guard reversions across ≥2 tokenizers, with a pre-registered kill rule. The rule: if no plausible tokenizer-aware design simulates to ≥1.10x aggregate cl100k ratio with the present labeled contract preserved, keep the project dormant and stop until the escalation rule fires.
+
+## Decision — 2026-09-24 (DEFER / dorm)
+
+**Disposition:** DEFER (dormant until a named production consumer demonstrates demand for deterministic compression at the threshold recorded below).
+
+**Pre-registered escalation rule** — reopen with a fresh review pass (and a substantive source review that records GO) if any of the following becomes true; otherwise remain dormant:
+- A specific hermes-lcm, Mnemosyne, or Hermes Agent call site is named that needs deterministic compression and where ~1.1x exact-token ratio on its real text would deliver measurable value.
+- A tokenizer-aware payload/label design demonstrates an aggregate cl100k ratio ≥1.10x with the corpus, structural-fidelity, and label-preservation probes all passing on the pinned benchmark.
+- The nine-case corpus is replaced with a published reader-oriented corpus that demonstrates ≥1.15x aggregate cl100k ratio with task-completion parity across ≥80% of cases.
+
+**Authorized work:** none. Diagnostic accounting, contract redesign, corpus work, canary runs, integration, PyPI publication, and upstream PR all remain blocked until one of the three conditions above is met **and** a substantive source review records GO.
+
+## Performance finding — 2026-08-30
+
+The measured binding constraint is **compression quality under real tokenization**, not execution speed. The verified baseline is 0.9729x under `tiktoken:cl100k_base` (215 input tokens -> 221 output tokens), while sequential runtime scales approximately linearly at about 54 microseconds per case at 90 cases. A strict token-guard pass was tested and reverted because it removed required labels and broke context-builder/integration behavior. Future optimization (when the escalation rule fires) should target tokenizer-aware payload/label design and preserve the existing behavior contract.
 

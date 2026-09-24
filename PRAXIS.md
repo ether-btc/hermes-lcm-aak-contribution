@@ -15,6 +15,8 @@
 - **Dependencies:** hermes-lcm's actual compaction/context contracts; Hermes Agent's context-engine plugin seam; Lumina source attribution.
 - **Out of scope:** Activating AAAK in the live Hermes installation, changing hermes-lcm, opening upstream PRs, or publishing to PyPI.
 
+> **2026-09-24 — Frozen / DEFER dorm.** AAAK remains a standalone reference. Diagnostic accounting, contract redesign, corpus work, canary runs, integration, PyPI publication, and upstream PR are all uncommitted. Reopen only via the escalation rule in [[DECISIONS]] `2026-09-24 — Freeze AAAK as a standalone reference (DEFER / dorm)`.
+
 ## Frameworks
 
 - **Separation of concerns:** Keep compression, tier policy, storage, and host integration independently testable.
@@ -25,7 +27,7 @@
 ## Current evidence
 
 - The package is standalone and the hermes-lcm checkout contains no AAAK implementation.
-- The package's direct test command now works from a checkout and passes 56 tests.
+- The package's direct test command works from a checkout; **historical note** it once reported 56 tests passing, but the current `verify.sh` reports 106 tests passing and 1 skipped (the hermes-agent import is unavailable).
 - The original roadmap offered three integration options but did not establish a decision gate, compatibility contract, benchmark gate, rollback behavior, or owner/exit criteria.
 - Lumina's source architecture separates compressed closets from verbatim drawers and uses L0/L1/L2/L3 layering; AAAK should preserve that conceptual split rather than replace hermes-lcm's lossless source lineage.
 

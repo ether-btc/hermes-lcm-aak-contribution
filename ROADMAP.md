@@ -4,6 +4,8 @@
 
 Make AAAK an **optional, standalone deterministic compression provider with a narrow adapter seam**, not a replacement for hermes-lcm's lossless store/DAG. The package must prove compression and fidelity first, then integrate through an explicit adapter and opt-in canary.
 
+> **2026-09-24 — FROZEN / DEFER dorm (supersedes all milestones below).** The aggregate cl100k ratio is 0.9729x with only one of nine corpus cases compressing, and two independent reviewers concluded **reviews found no safe contract-preserving tokenizer-aware implementation without an explicit label/context contract decision**. AAAK remains a standalone reference; see [[STATUS]] `Decision — 2026-09-24 (DEFER / dorm)` and DECISIONS ADR.
+
 ## Milestone 0 — Evidence and contract (highest risk first)
 
 **Demonstrable state:** A fresh checkout can run the package and produce a benchmark report whose claims are reproducible.

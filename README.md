@@ -1,9 +1,9 @@
 # AAAK Compression Provider for hermes-lcm
 
-> **Project status (2026-08-09):** standalone and not integrated into the active
+> **Project status (2026-08-09; updated 2026-09-24):** standalone, **frozen / DEFER dorm**, not integrated into the active
 > hermes-lcm runtime. See [`PRAXIS.md`](PRAXIS.md), [`ROADMAP.md`](ROADMAP.md),
 > [`DECISIONS.md`](DECISIONS.md), and [`STATUS.md`](STATUS.md) for the governed
-> integration path and current evidence.
+> path and the 2026-09-24 dorm decision / escalation rule.
 
 Deterministic, AI-readable compression without requiring a decoder. The historical
 `~30x` reduction is an unverified target; run the benchmark and inspect its named
@@ -25,7 +25,8 @@ This provider implements an alternative compression strategy for hermes-lcm that
 ## Quick Start
 
 ```bash
-pip install aaak-provider
+# From this checkout (PyPI publication is not authorized under the 2026-09-24 dorm):
+pip install -e .
 ```
 
 ```python
@@ -87,9 +88,9 @@ Exponential forgetting curve: `w(t) = e^(-λ × t)` with λ=0.05/day (~22% reten
 | AI-readable | ✅ Native | ❌ Needs decoder | ✅ Native |
 | Dependencies | stdlib only | Rust + PyO3 | LLM API/local |
 
-## Integration with hermes-lcm
+## Integration with hermes-lcm (historical, subject to the 2026-09-24 dorm)
 
-This package is designed as a candidate provider, but it is not currently integrated into the active hermes-lcm runtime. `ContextBuilder` is a package-local result type; an adapter and contract test are required before compatibility can be claimed.
+This package is designed as a candidate provider, but it is not currently integrated into the active hermes-lcm runtime. `ContextBuilder` is a package-local result type; an adapter and contract test are required before compatibility can be claimed. Per the 2026-09-24 dorm decision (`STATUS.md`, `DECISIONS.md`), the integration proposals below are retained as historical context only.
 
 ### Proposed Integration Points
 
@@ -141,7 +142,9 @@ backend rather than a claim that it matches every target reader model.
 ./scripts/verify.sh
 ```
 
-56 tests currently cover compression, configuration validation, benchmark reporting, structural literal preservation, deterministic invariant probes, optional latency measurement, tier management, temporal decay, context building, and full pipeline integration. `SEMANTIC_EVALUATION.md` records a separate bounded adequacy review; it is not independent human or model-reader evidence. Sequential scale evidence is available through `scripts/benchmark_scale.py` and is explicitly host-local.
+**Historical (2026-08-15)** 56 tests previously covered compression, configuration validation, benchmark reporting, structural literal preservation, deterministic invariant probes, optional latency measurement, tier management, temporal decay, context building, and full pipeline integration. **Current (2026-09-24)** 106 tests pass and 1 is skipped (the hermes-agent import is unavailable); see `scripts/verify.sh` output. `SEMANTIC_EVALUATION.md` records a separate bounded adequacy review; it is not independent human or model-reader evidence. Sequential scale evidence is available through `scripts/benchmark_scale.py` and is explicitly host-local.
+
+> **2026-09-24 update:** The verdict-driving target on the roadmap is now superseded by the dorm decision recorded in `STATUS.md` and `DECISIONS.md`. The package is retained in this repository as a standalone reference of a deterministic, stdlib-only compressor that achieved a 0.9729x aggregate cl100k ratio on the nine-case benchmark and 1.05x–1.21x on realistic long-form prose; further tokenizer-aware engineering is gated on the named-demand escalation rule.
 
 ## License
 
