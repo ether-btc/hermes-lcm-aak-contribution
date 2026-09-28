@@ -30,7 +30,7 @@
 
 **Finding:** AAAK's binding constraint is compression quality under real tokenization, not execution speed.
 
-**Evidence:** The verified `tiktoken:cl100k_base` baseline is 215 input -> 221 output tokens (0.9729x), while sequential compression remains approximately linear at about 54 microseconds per case at 90 cases. A strict no-expansion guard improved the isolated ratio probe but caused five existing behavior regressions, including lost labels and broken context-builder/integration expectations; the pass was reverted.
+**Evidence:** The verified `tiktoken:cl100k_base` baseline is 215 input -> 221 output tokens (0.9729x), while sequential compression remains approximately linear and host-load-dependent: on an idle host `scripts/benchmark_scale.py` at 90 cases gives p50 49-54 us/case and p95 51-68 us/case, rising to roughly p50 ~124 us / p95 ~428 us under load average 8-14, so the earlier "~54 us per case" note is recorded as an idle-host figure rather than a fixed value. A strict no-expansion guard improved the isolated ratio probe but caused five existing behavior regressions, including lost labels and broken context-builder/integration expectations; the pass was reverted.
 
 **Decision:** Do not pursue a runtime-speed optimization next. Prioritize a tokenizer-aware payload/label design, with regression coverage for labels, context assembly, structural fidelity, and exact-token behavior.
 

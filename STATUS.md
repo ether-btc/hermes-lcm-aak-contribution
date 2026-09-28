@@ -9,7 +9,7 @@
 - Repository contains standalone AAAK work and tracks `origin/main`; no Hermes-LCM runtime files are changed.
 - Package contains the compressor, tier manager, temporal decay engine, context builder, JSON map, tests, and packaging metadata.
 - **106 tests pass** (1 skipped: hermes-agent not importable).
-- The benchmark reports **0.973x aggregate cl100k_base ratio** on the nine-case corpus (vs 0.947x before M2.5) — up from **215 → 227 tokens (worse)** to **215 → 221 tokens**. Per-case under `tiktoken:cl100k_base`: one case above 1.00x (unicode-prose 1.111x); three cases at 1.00x (prose-preference, code-and-negation, json-config, date-and-number; aggregate count includes cases that the unlabeled branch returned verbatim under the content-type classifier); the remaining cases landed at 0.91–0.97x. Re-run `python3 scripts/benchmark_aak.py --tokenizer tiktoken-cl100k --pretty` to confirm.
+- The benchmark reports **0.973x aggregate cl100k_base ratio** on the nine-case corpus (vs 0.947x before M2.5) — up from **215 → 227 tokens (worse)** to **215 → 221 tokens**. Per-case under `tiktoken:cl100k_base`: one case above 1.00x (unicode-prose 1.111x); **four** cases at exactly 1.00x (prose-preference, code-and-negation, json-config, date-and-number — token-neutral, but **not** all verbatim: json-config alone returns its input verbatim via the unlabeled structured-skip branch; the other three are labeled rewrites with a net-zero token delta, e.g. prose-preference -> `PREF: dark-mode + vim-bindings b/c PROJ IMP.`); the remaining four cases landed at 0.91–0.97x. Re-run `python3 scripts/benchmark_aak.py --tokenizer tiktoken-cl100k --pretty` to confirm.
 - Long-form prose (>200 chars) has previously been reported at 1.05x–1.21x (see M2.5 results below). That range is reproduced on warm-up heuristics, not on the pinned `cl100k` evaluation set; treat as historical until reproduced.
 - **Expansion guard** prevents token increase on structured content **when no label is supplied and only under the configured `token_counter`** (heuristic by default); with a label it tolerates up to +2 tokens of overhead, and switching to the `cl100k` measurement backend is a deliberate caller choice.
 - **Content-type classifier** skips compression on high-density structured text where abbreviation cannot help.
@@ -29,7 +29,7 @@ The LongCat review on 2026-08-14 gave a **blocking** verdict because AAAK expand
 **Results on the nine-case benchmark:**
 - Before: 215 input / 227 output = 0.947x (expansion)
 - After:  215 input / 221 output = 0.973x (near-parity)
-- Unlabeled structured cases (json-config, log-line) now return original verbatim under the heuristic guard
+- Unlabeled structured case json-config returns the original verbatim under the heuristic guard; the labeled log-line is label-prefixed and abbreviated (`LOG: 2026-08-09T12:34:56Z level=ERROR …`, 0.914x) and is **not** verbatim
 
 **Results on realistic long-form prose (>200 chars):**
 - Session summaries: 1.05x – 1.10x compression
@@ -68,5 +68,5 @@ The LongCat review on 2026-08-14 gave a **blocking** verdict because AAAK expand
 
 ## Performance finding — 2026-08-30
 
-The measured binding constraint is **compression quality under real tokenization**, not execution speed. The verified baseline is 0.9729x under `tiktoken:cl100k_base` (215 input tokens -> 221 output tokens), while sequential runtime scales approximately linearly at about 54 microseconds per case at 90 cases. A strict token-guard pass was tested and reverted because it removed required labels and broke context-builder/integration behavior. Future optimization (when the escalation rule fires) should target tokenizer-aware payload/label design and preserve the existing behavior contract.
+The measured binding constraint is **compression quality under real tokenization**, not execution speed. The verified baseline is 0.9729x under `tiktoken:cl100k_base` (215 input tokens -> 221 output tokens) — token *expansion*, not compression. Sequential runtime scales approximately linearly but is host-load-dependent and not reproducible to a fixed value: on an otherwise idle host, `scripts/benchmark_scale.py` at 90 cases gives p50 49-54 us/case and p95 51-68 us/case, while under concurrent load (observed load average 8-14) the same measurement ranges up to p50 ~124 us and p95 ~428 us. The earlier "~54 us per case" note is therefore recorded as an idle-host figure and must not be cited as a fixed value or compared across machines. A strict token-guard pass was tested and reverted because it removed required labels and broke context-builder/integration behavior. Future optimization (when the escalation rule fires) should target tokenizer-aware payload/label design and preserve the existing behavior contract.
 

@@ -30,8 +30,7 @@ pip install -e .
 ```
 
 ```python
-from aaak_provider import AAkCompressor, TierManager, ContextBuilder
-from aaak_provider.compression import CompressionContext
+from aaak_provider import AAkCompressor, TierManager, ContextBuilder, CompressionContext
 from aaak_provider.tier_manager import TieredMemory, Tier
 
 # Create compressor
@@ -42,7 +41,11 @@ compressed = compressor.compress(
     "The user prefers dark mode and vim keybindings for coding",
     label="PREF"
 )
-# Result: "PREF: USR prefers dark-mode + vim-bindings for coding"
+# Actual verified output: "PREF: dark-mode + vim-bindings for coding"
+# (Verified 2026-09-28 by execution. The comment previously shown here —
+#  "PREF: USR prefers dark-mode + vim-bindings for coding" — is stale: the
+#  multi-word phrase abbreviations map "the user prefers" to "" and "dark mode"
+#  to "dark-mode", so `USR` and `prefers` no longer appear in the output.)
 
 # Build context with tier budgets
 tier_manager = TierManager()
@@ -84,9 +87,15 @@ Exponential forgetting curve: `w(t) = e^(-λ × t)` with λ=0.05/day (~22% reten
 | Deterministic | ✅ | ✅ | ❌ |
 | LLM calls | 0 | 0 | 1+ per consolidation |
 | Latency | <1ms | ~5-10ms | 500ms-5s |
-| Token reduction | Benchmark required | ~2-4x | ~5-10x |
+| Token reduction | **Benchmark required — measured 0.9729x (expansion)** | "~2-4x" not measured in this project; carried over unverified | ~5-10x |
 | AI-readable | ✅ Native | ❌ Needs decoder | ✅ Native |
 | Dependencies | stdlib only | Rust + PyO3 | LLM API/local |
+
+_Verification note (2026-09-28):_ the AAAK token-reduction cell is filled from this
+project's own `cl100k_base` measurement. The Caveman `~2-4x` cell has **not**
+been measured against a tokenizer here and is an unverified figure carried
+over from the original comparison; a head-to-head exact-token comparison has
+never been run. Treat the Caveman and LLM columns as unquantified.
 
 ## Integration with hermes-lcm (historical, subject to the 2026-09-24 dorm)
 
@@ -144,7 +153,7 @@ backend rather than a claim that it matches every target reader model.
 
 **Historical (2026-08-15)** 56 tests previously covered compression, configuration validation, benchmark reporting, structural literal preservation, deterministic invariant probes, optional latency measurement, tier management, temporal decay, context building, and full pipeline integration. **Current (2026-09-24)** 106 tests pass and 1 is skipped (the hermes-agent import is unavailable); see `scripts/verify.sh` output. `SEMANTIC_EVALUATION.md` records a separate bounded adequacy review; it is not independent human or model-reader evidence. Sequential scale evidence is available through `scripts/benchmark_scale.py` and is explicitly host-local.
 
-> **2026-09-24 update:** The verdict-driving target on the roadmap is now superseded by the dorm decision recorded in `STATUS.md` and `DECISIONS.md`. The package is retained in this repository as a standalone reference of a deterministic, stdlib-only compressor that achieved a 0.9729x aggregate cl100k ratio on the nine-case benchmark and 1.05x–1.21x on realistic long-form prose; further tokenizer-aware engineering is gated on the named-demand escalation rule.
+> **2026-09-24 update:** The verdict-driving target on the roadmap is now superseded by the dorm decision recorded in `STATUS.md` and `DECISIONS.md`. The package is retained in this repository as a standalone reference of a deterministic, stdlib-only compressor that measured a 0.9729x aggregate `cl100k` ratio on the nine-case benchmark; the 1.05x–1.21x long-form figure is **historical** (heuristic warm-up measurements, never reproduced on the pinned `cl100k` set — see ROADMAP Milestone 1.5). Further tokenizer-aware engineering is gated on the named-demand escalation rule.
 
 ## License
 

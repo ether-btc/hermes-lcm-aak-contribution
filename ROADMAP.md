@@ -23,19 +23,23 @@ Make AAAK an **optional, standalone deterministic compression provider with a na
 
 **Demonstrable state:** The package behaves predictably as an installed artifact and rejects unsafe configuration.
 
-- [x] Publish/import smoke test in an isolated virtual environment and wheel build check.
+- [x] Run a publish/import smoke test in an isolated environment (`scripts/host_smoke.py`; hermes-agent plugin-discovery loader, opt-in and exits 0 when hermes-agent is absent).
+- [ ] ~~and wheel build check~~ — **not implemented; this box was checked in error.** Verified 2026-09-28: no `bdist`/`python -m build`/wheel invocation exists in any script, test, or `verify.sh` step, and no isolated-venv install test is present in `tests/`. A wheel-build gate remains **open** and must not be re-checked without adding one.
 - [x] Validate abbreviation-map schema: string-to-string entries, non-empty keys, deterministic ordering, and collision warnings.
 - [x] Decide whether custom filler words replace or extend defaults; document and test the choice.
 - [x] Add explicit timestamp policy (UTC-aware timestamps preferred; invalid/future timestamps handled deterministically).
 - [x] Bound or compact rolling summaries; current append-only behavior can exceed the stated tier budget.
 - [x] Replace ambiguous "L0-L3" language with the actual five internal categories (`identity`, `critical`, `recent`, `nightstand`, `deep`).
-- [x] Add license file, changelog, supported-Python CI matrix, and package metadata checks.
+- [x] Add package metadata checks (`pyproject.toml`: name, version, `requires-python >=3.11`, `license = "Apache-2.0"`, dev/benchmark extras).
+- [ ] ~~Reconcile the two package version numbers~~ — **the versions disagree, and the package-level metadata check does not catch it.** Verified 2026-09-28: `pyproject.toml` declares `version = "1.0.0"` while `aaak_provider/__init__.py:54` declares `__version__ = "1.1.0"`. The "package metadata checks" box above is therefore narrower than its wording suggests — it does not cross-check the two sources. Reconciling them (and adding a test that would fail if they diverge again) is **open**; which value is authoritative is a maintainer decision, deliberately not made here while the project is in DEFER dorm.
+- [ ] ~~Add license file, changelog, supported-Python CI matrix~~ — **never done; this checkbox was checked in error on 2026-08-15.** Verified 2026-09-28: the repo contains **no `LICENSE` (or COPYING) file, no `CHANGELOG`, and no `.github/workflows/` directory**, and `git log --all -- LICENSE CHANGELOG.md` returns nothing. The license is declared only as a `pyproject.toml` metadata field, which is not the same as shipping the license text. All three remain **open**; they are deliberately NOT done while the project is in DEFER dorm (2026-09-24), and must not be re-checked without producing the artifacts.
 
-**Exit:** wheel installs into a clean venv; all tests run without `PYTHONPATH`; CI covers supported Python versions; budget and configuration invariants are tested.
+**Exit:** wheel installs into a clean venv; all tests run without `PYTHONPATH`; CI covers supported Python versions; budget and configuration invariants are tested. _Status verified 2026-09-28: the invariant/configuration portion is met and `verify.sh` runs the suite with no `PYTHONPATH` set; the wheel-install and CI-matrix portions are **unmet** and are now tracked as open items above._
 
-## Milestone 1.5 — Compression ratio recovery (M2.5) — ✅ COMPLETE 2026-08-15
+## Milestone 1.5 — Compression ratio recovery (M2.5) — ⚠️ IMPLEMENTED, EXIT NOT MET (marked "✅ COMPLETE" in error on 2026-08-15)
 
-**Demonstrable state:** AAAK no longer expands context under `cl100k_base`.
+**Demonstrable state (as claimed 2026-08-15):** "AAAK no longer expands context under `cl100k_base`."
+**Actual demonstrable state (verified 2026-09-24):** AAAK **still expands** under `cl100k_base` — 0.9729x aggregate (215 input -> 221 output tokens). The mechanisms below were genuinely built and are real (verified 2026-09-28: 54 of 83 default abbreviations are multi-word phrases; `_is_structured` content-type skipping exists at `compression.py:280`; the `expansion_guard` field exists at `compression.py:142`), but they did not deliver the milestone's stated outcome.
 
 - [x] Identify root cause: single-word abbreviation map (1:1 token swaps), no expansion guard, overlapping regex matches, no content-type awareness.
 - [x] Add multi-word phrase abbreviations ("the user prefers" → "") for net-positive compression.
@@ -44,11 +48,12 @@ Make AAAK an **optional, standalone deterministic compression provider with a na
 - [x] Fix regex overlap with single-pass alternation and deduplication.
 - [x] Update benchmark to reflect new ratio metrics.
 
-**Exit:** `cl100k_base` benchmark ratio >= 0.95x on the original corpus; >1.0x on realistic long-form prose.
+**Exit (as stated 2026-08-15):** `cl100k_base` benchmark ratio >= 0.95x on the original corpus; >1.0x on realistic long-form prose.
+**Exit status (verified 2026-09-24):** **PARTIALLY MET — and the met half does not mean success.** The ratio convention is input/output, so higher is better. The corpus floor *is* cleared: 0.9729x >= 0.95x. But the substantive half — **>1.0x on realistic long-form prose — is NOT MET**, and no such figure reproduces: per-case, only unicode-prose (1.111x) compresses, and the remaining cases are at or below 1.00x. An aggregate below 1.0x is still token *expansion*, so clearing a 0.95x floor while remaining under 1.0x means the milestone was closed on a threshold that was too low to demonstrate its own stated goal. This unmet half is the direct evidence behind the 2026-09-24 DEFER/dorm decision.
 
 **Results:**
 - Nine-case benchmark: 215 input / 221 output = 0.973x (up from 0.947x)
-- Realistic long-form (>200 chars): 1.05x – 1.21x compression
+- Realistic long-form (>200 chars): 1.05x – 1.21x compression _(historical 2026-08-15 heuristic warm-up figures; never reproduced on the pinned `cl100k` set, and the nine-case corpus contains no >200-char case — see the Exit status above)_
 - Expansion guard prevents token increase on structured content
 
 ## Milestone 2 — Integration spike, no host changes
