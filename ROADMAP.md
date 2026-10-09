@@ -4,7 +4,7 @@
 
 Make AAAK an **optional, standalone deterministic compression provider with a narrow adapter seam**, not a replacement for hermes-lcm's lossless store/DAG. The package must prove compression and fidelity first, then integrate through an explicit adapter and opt-in canary.
 
-> **2026-09-24 — FROZEN / DEFER dorm (supersedes all milestones below).** The aggregate cl100k ratio is 0.9729x with only one of nine corpus cases compressing, and two independent reviewers concluded **reviews found no safe contract-preserving tokenizer-aware implementation without an explicit label/context contract decision**. AAAK remains a standalone reference; see [[STATUS]] `Decision — 2026-09-24 (DEFER / dorm)` and DECISIONS ADR.
+> **2026-09-24 — FROZEN / DEFER dorm (supersedes all milestones below).** The aggregate cl100k ratio is 0.9729x with only one of nine corpus cases compressing, and two independent reviewers concluded **reviews found no safe contract-preserving tokenizer-aware implementation without an explicit label/context contract decision**. AAAK remains a standalone reference; see [[STATUS]] `Decision — 2026-09-24 (DEFER / dorm)` and DECISIONS ADR. **Superseded 2026-10-09 by the DECLINED disposition** — the upstream proposal is withdrawn (issue `hermes-lcm#514` closed, no PyPI publication, no upstream PR); see `DECISIONS.md` 2026-10-09.
 
 ## Milestone 0 — Evidence and contract (highest risk first)
 
@@ -68,7 +68,9 @@ Make AAAK an **optional, standalone deterministic compression provider with a na
 
 **Exit:** adapter contract tests pass against fixtures and a canary harness proves a one-switch fallback to the existing host path.
 
-## Milestone 3 — Upstream integration proposal
+## Milestone 3 — Upstream integration proposal — ❌ WITHDRAWN (DECLINED 2026-10-09)
+
+> **2026-10-09 — WITHDRAWN (DECLINED), not pending.** The upstream-integration / publication milestone is withdrawn: issue `stephenschoettler/hermes-lcm#514` is closed, there is **no PyPI publication** and **no upstream PR**, and the project is DECLINED on measurement (0.9729x aggregate `cl100k`; the ~30x headline is measured-rejected). See the 2026-10-09 DECLINED entry in `DECISIONS.md`. The task list below is retained as historical only.
 
 **Demonstrable state:** Maintainers can review a minimal integration proposal with evidence and a rollback plan.
 

@@ -1,8 +1,18 @@
 # Status
 
 **Project:** hermes-lcm-aak-contribution
-**Date:** 2026-08-15 (filing refresh 2026-09-24)
-**Current state:** standalone package, **frozen / DEFER dorm**: token economy does not justify further engineering effort under the project's own measurement yardstick; AAAK remains a standalone reference.
+**Date:** 2026-08-15 (filing refresh 2026-09-24; status updated 2026-10-09)
+**Current state:** standalone package, **DECLINED (2026-10-09; supersedes the 2026-09-24 DEFER dorm)**: the upstream proposal is withdrawn and the repository is retained as the record of a measured null result. No PyPI publication, no upstream PR. See the 2026-10-09 DECLINED entry at the top of `DECISIONS.md`. The DEFER/dorm record and all measurement history below are retained unchanged.
+
+## Decision — 2026-10-09 (DECLINED, supersedes DEFER)
+
+**Disposition:** DECLINED. Upstream proposal withdrawn; no PyPI publication; no upstream PR. The repository is retained as the record of a measured null result.
+
+**Basis:**
+- Measured `tiktoken:cl100k_base` aggregate ratio **0.9729x** (215 -> 221 tokens — net *expansion*); 1 of 9 cases above 1.00x (unicode-prose 1.111x); four at exactly 1.00x (one a verbatim pass-through); the rest 0.91–0.97x. The **~30x headline is unverified and measured-rejected**.
+- Frozen/DEFER on **2026-09-24** with four concurring reviews (Codex, `opus-5.5`, plus two `glm-5.3-flash` bot reviewers); the stated reason was "no named consumer".
+- **A journal is an evidence artifact:** compressing it at rest costs greppability for a measured loss. If journal efficiency is wanted, cut volume (rollup/prune) and compress only derived views, gated on a real measurement — never the evidence artifact itself.
+- Upstream issue `stephenschoettler/hermes-lcm#514` is withdrawn and closed.
 
 ## Verified
 

@@ -1,9 +1,10 @@
 # AAAK Compression Provider for hermes-lcm
 
-> **Project status (2026-08-09; updated 2026-09-24):** standalone, **frozen / DEFER dorm**, not integrated into the active
-> hermes-lcm runtime. See [`PRAXIS.md`](PRAXIS.md), [`ROADMAP.md`](ROADMAP.md),
-> [`DECISIONS.md`](DECISIONS.md), and [`STATUS.md`](STATUS.md) for the governed
-> path and the 2026-09-24 dorm decision / escalation rule.
+> **Project status (2026-08-09; status updated 2026-10-09):** standalone, **DECLINED (2026-10-09)** — the upstream
+> proposal is withdrawn and the repository is retained as the record of a measured null result. Not integrated into the
+> active hermes-lcm runtime; no PyPI publication and no upstream PR. See [`PRAXIS.md`](PRAXIS.md),
+> [`ROADMAP.md`](ROADMAP.md), [`DECISIONS.md`](DECISIONS.md) (2026-10-09 DECLINED entry), and
+> [`STATUS.md`](STATUS.md) for the governed path.
 
 Deterministic, AI-readable compression without requiring a decoder. The historical
 `~30x` reduction is an unverified target; run the benchmark and inspect its named
@@ -153,7 +154,7 @@ backend rather than a claim that it matches every target reader model.
 
 **Historical (2026-08-15)** 56 tests previously covered compression, configuration validation, benchmark reporting, structural literal preservation, deterministic invariant probes, optional latency measurement, tier management, temporal decay, context building, and full pipeline integration. **Current (2026-09-24)** 106 tests pass and 1 is skipped (the hermes-agent import is unavailable); see `scripts/verify.sh` output. `SEMANTIC_EVALUATION.md` records a separate bounded adequacy review; it is not independent human or model-reader evidence. Sequential scale evidence is available through `scripts/benchmark_scale.py` and is explicitly host-local.
 
-> **2026-09-24 update:** The verdict-driving target on the roadmap is now superseded by the dorm decision recorded in `STATUS.md` and `DECISIONS.md`. The package is retained in this repository as a standalone reference of a deterministic, stdlib-only compressor that measured a 0.9729x aggregate `cl100k` ratio on the nine-case benchmark; the 1.05x–1.21x long-form figure is **historical** (heuristic warm-up measurements, never reproduced on the pinned `cl100k` set — see ROADMAP Milestone 1.5). Further tokenizer-aware engineering is gated on the named-demand escalation rule.
+> **2026-10-09 update — DECLINED (supersedes the 2026-09-24 DEFER dorm):** The upstream proposal is **withdrawn** — issue `hermes-lcm#514` is closed, there is **no PyPI publication** and **no upstream PR**. The repository is retained as the record of a measured null result, not as a pending contribution; see the 2026-10-09 DECLINED entry at the top of `DECISIONS.md`. The package remains a deterministic, stdlib-only compressor that measured a 0.9729x aggregate `cl100k` ratio on the nine-case benchmark; the 1.05x–1.21x long-form figure is **historical** (heuristic warm-up measurements, never reproduced on the pinned `cl100k` set — see ROADMAP Milestone 1.5).
 
 ## License
 

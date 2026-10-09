@@ -1,5 +1,29 @@
 # Decisions
 
+## 2026-10-09 — DECLINED (supersedes DEFER) — on measurement and on the nature of a journal
+
+**Disposition:** DECLINED. The upstream proposal is withdrawn; the repository is retained as the record of a measured null result, not as a pending contribution.
+
+**Evidence (measured on the pinned tokenizer `tiktoken:cl100k_base`):**
+- Aggregate ratio **0.9729x** across the nine-case corpus: **215 -> 221 tokens** — a net **EXPANSION**, not compression.
+- Per-case: only **1 of 9** cases is above 1.00x (unicode-prose 1.111x); **four** cases land at exactly 1.00x (one of which is a verbatim pass-through); the remaining four fall between 0.91x and 0.97x.
+- The headline **"~30x token reduction" claim is unverified and measured-rejected.**
+
+**Prior state and reviews:** Frozen/DEFER on **2026-09-24** with four concurring reviews (Codex, `opus-5.5`, plus two bot reviewers on `glm-5.3-flash`). The stated reason at that time was "no named consumer": no hermes-lcm, Mnemosyne, or Hermes Agent call site needs deterministic compression at the recorded threshold.
+
+**Decisive new reason — a journal is an evidence artifact:** Compressing a journal at rest costs greppability for a measured loss (0.9729x is expansion). An artifact consulted for evidence must remain lossless and searchable. If journal efficiency is wanted, the correct moves are:
+- **Cut volume** (rollup/prune) rather than compress the raw record;
+- **Compress only DERIVED views**, never the evidence artifact itself;
+- **Gate any such work on a real measurement**, not a headline claim.
+
+**Closing decisions:**
+- Upstream issue `stephenschoettler/hermes-lcm#514` is **withdrawn and closed** (by the operator).
+- **No PyPI publication.**
+- **No upstream PR.**
+- The repository is **retained as the record of a measured null result**.
+
+**Reversible:** N/A for the upstream proposal — the disposition is terminal. The package, tests, and benchmark harness remain in the repository as the record.
+
 ## 2026-08-09 — Keep AAAK standalone until the adapter is proven
 
 **Decision:** Do not integrate AAAK into active hermes-lcm yet.

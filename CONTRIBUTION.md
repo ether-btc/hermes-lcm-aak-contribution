@@ -1,6 +1,7 @@
 # Contribution Proposal: AAAK Compression Provider for hermes-lcm
 
-> **Status: frozen / DEFER dorm (2026-09-24). Not an open proposal.**
+> **Status: WITHDRAWN (DECLINED 2026-10-09; supersedes the 2026-09-24 DEFER dorm). Not an open proposal — this
+> proposal is not "ready for upstream" and will not be submitted.**
 > This document is preserved as the original 2026-08-06 pitch. Its headline
 > performance claim is **disproved by measurement** and every *historical
 > performance* statement below is superseded by these figures. AAAK is currently measured at
